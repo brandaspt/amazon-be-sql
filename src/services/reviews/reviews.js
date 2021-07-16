@@ -1,15 +1,15 @@
-import express from "express";
-import { validateObjectId } from "../sharedMiddlewares.js";
-import * as Controllers from "../../controllers/reviews.js";
+import express from "express"
 
-const router = express.Router();
+import * as Controllers from "../../controllers/reviews.js"
 
-router.get("/:prodId", validateObjectId, Controllers.getSingleProductReviews);
+const router = express.Router()
 
-router.post("/:prodId", validateObjectId, Controllers.postProductReview);
+router.get("/:prodId", Controllers.getSingleProductReviews)
 
-router.put("/:reviewId", validateObjectId, Controllers.editReview);
+router.post("/:prodId", Controllers.postProductReview)
 
-router.delete("/:reviewId", Controllers.deleteReview);
+router.put("/:reviewId", Controllers.editReview)
 
-export default router;
+router.delete("/:reviewId", Controllers.deleteReview)
+
+export default router

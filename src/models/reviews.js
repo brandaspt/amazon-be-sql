@@ -1,26 +1,26 @@
-import mongoose from "mongoose"
+import { sequelize } from "../config/db.js"
+import { Sequelize } from "sequelize"
 
-const { Schema, model } = mongoose
+const { DataTypes } = Sequelize
 
-const ReviewSchema = new Schema(
-    {
-        comment: {
-            type:String,
-            required: true,
-        },
+const reqString = { type: DataTypes.TEXT, allowNull: false }
 
-        rate:{
-            type:Number,
-            required:true,
-            min:1,
-            max:5
-        }
+const Review = sequelize.define("review", {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  authorName: reqString,
+  content: reqString,
+  rate: {
+    type: DataTypes.INTEGER,
+    validate: {
+      min: 1,
+      max: 5,
     },
-    {
-        timestamps:true
-    }
-)
+    allowNull: false,
+  },
+})
 
-
-export default model("Review", ReviewSchema)
-
+export default Review

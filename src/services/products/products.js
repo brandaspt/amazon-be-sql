@@ -1,20 +1,15 @@
 import express from "express"
-import { validateObjectId } from "../sharedMiddlewares.js"
+
 import * as Controllers from "../../controllers/products.js"
-import { prodImgParser } from "../../settings/cloudinary.js"
+import { prodImgParser } from "../../config/cloudinary.js"
 
 const router = express.Router()
 
 router.get("/", Controllers.getAllProducts)
-router.get("/:prodId", validateObjectId, Controllers.getSingleProduct)
+router.get("/:prodId", Controllers.getSingleProduct)
 router.post("/", Controllers.addNewProduct)
-router.put("/:prodId", validateObjectId, Controllers.editProduct)
-router.delete("/:prodId", validateObjectId, Controllers.deleteProduct)
-router.post(
-  "/:prodId/uploadImage",
-  validateObjectId,
-  prodImgParser.single("prodImg"),
-  Controllers.uploadProductImage
-)
+router.put("/:prodId", Controllers.editProduct)
+router.delete("/:prodId", Controllers.deleteProduct)
+router.post("/:prodId/uploadImage", prodImgParser.single("prodImage"), Controllers.uploadProductImage)
 
 export default router

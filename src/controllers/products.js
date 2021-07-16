@@ -1,68 +1,63 @@
 import createError from "http-errors"
-import q2m from "query-to-mongo"
 
-import ProductModel from "../models/products.js"
+import models from "../models/index.js"
+
+const { Product, Review } = models
 
 export const getAllProducts = async (req, res, next) => {
-  const query = q2m(req.query, { maxLimit: 25 })
   try {
-    const products = await ProductModel.find(query.criteria, query.options.fields)
-      .skip(query.options.skip)
-      .limit(query.options.limit)
-      .populate("reviews")
-    const total = await ProductModel.countDocuments(query.criteria)
-    res.send({ links: query.links("/products", total), total, products })
+    const products = await Product.findAll({ include: Review })
+    res.json(products)
   } catch (error) {
-    next(createError(500))
+    next(createError(500, error))
   }
 }
 export const getSingleProduct = async (req, res, next) => {
+  const prodId = req.params.prodId
   try {
-    const product = await ProductModel.findById(req.params.prodId).populate("reviews")
-    if (!product) return next(createError(404, `Product with id ${req.params.prodId} not found`))
-    res.json(product)
+    const foundProd = await Product.findByPk(prodId)
+    if (!foundProd) return next(createError(404, `Product with ID ${prodId} not found`))
+    res.json(foundProd)
   } catch (error) {
-    next(createError(500))
+    next(createError(400, error))
   }
 }
 export const addNewProduct = async (req, res, next) => {
-  const productData = { ...req.body }
-  const newProduct = new ProductModel(productData)
   try {
-    const test = await newProduct.save()
-    console.log(test)
-    res.status(201).json(newProduct)
+    const newProd = await Product.create(req.body)
+    res.json(newProd)
   } catch (error) {
-    next(createError(500))
+    next(createError(400, error))
   }
 }
 export const editProduct = async (req, res, next) => {
-  const update = req.body
+  const prodId = req.params.prodId
   try {
-    const updatedProd = await ProductModel.findByIdAndUpdate(req.params.prodId, update, { new: true, runValidators: true })
-    if (!updatedProd) return next(createError(404, `Product with id ${req.params.prodId} not found`))
-    res.json(updatedProd)
+    const resp = await Product.update(req.body, { where: { id: prodId }, returning: true })
+    if (!resp[0]) return next(createError(404, `Product with ID ${prodId} not found`))
+    res.json(resp[1][0])
   } catch (error) {
-    next(createError(500))
+    next(createError(400, error))
   }
 }
 export const deleteProduct = async (req, res, next) => {
+  const prodId = req.params.prodId
   try {
-    const deletedProd = await ProductModel.findByIdAndRemove(req.params.prodId)
-    if (!deletedProd) return next(createError(404, `Product with id ${req.params.prodId} not found`))
-    res.json({ deletedProd })
+    const resp = await Product.destroy({ where: { id: prodId } })
+    if (!resp) return next(createError(404, `Product with id ${prodId} not found`))
+    res.json({ ok: true, message: "Product deleted successfully." })
   } catch (error) {
-    next(createError(500))
+    next(createError(500, error))
   }
 }
 export const uploadProductImage = async (req, res, next) => {
-  console.log(req.file)
+  const prodId = req.params.prodId
   const update = { imageURL: req.file.path }
   try {
-    const updatedProd = await ProductModel.findByIdAndUpdate(req.params.prodId, update, { new: true })
-    if (!updatedProd) return next(createError(404, `Product with id ${req.params.prodId} not found`))
-    res.json(updatedProd)
+    const resp = await Product.update(update, { where: { id: prodId }, returning: true })
+    if (!resp[0]) return next(createError(404, `Product with ID ${prodId} not found`))
+    res.json(resp[1][0])
   } catch (error) {
-    next(createError(500))
+    next(createError(500, error))
   }
 }

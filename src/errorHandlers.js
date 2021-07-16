@@ -1,4 +1,5 @@
 export const errorHandler = (err, req, res, next) => {
+  console.log(err)
   if (err.status === 500) {
     console.log(err)
     res.status(err.status).json({ ok: false, message: "Something went wrong" })
