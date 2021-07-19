@@ -22,6 +22,15 @@ export const getSingleProduct = async (req, res, next) => {
     next(createError(400, error))
   }
 }
+export const getProductReviews = async (req, res, next) => {
+  const prodId = req.params.prodId
+  try {
+    const foundProd = await Review.findAll({ where: { productId: prodId } })
+    res.json(foundProd)
+  } catch (error) {
+    next(createError(400, error))
+  }
+}
 export const addNewProduct = async (req, res, next) => {
   try {
     const newProd = await Product.create(req.body)

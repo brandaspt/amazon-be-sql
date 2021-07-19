@@ -4,9 +4,9 @@ import * as Controllers from "../../controllers/reviews.js"
 
 const router = express.Router()
 
-router.get("/:prodId", Controllers.getSingleProductReviews)
+router.get("/:reviewId", Controllers.getSingleReview)
 
-router.post("/:prodId", Controllers.postProductReview)
+router.post("/", Controllers.addNewReview)
 
 router.put("/:reviewId", Controllers.editReview)
 
